@@ -30,6 +30,7 @@ func main() {
 
 	//  Set up tables
 	config.DB.AutoMigrate(&model.Person{})
+	config.DB.AutoMigrate(&model.Assignment{})
 
 	// Set up Person routess
 	repo := personRep.NewPerson()
