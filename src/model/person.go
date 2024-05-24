@@ -6,8 +6,8 @@ import (
 
 type Person struct {
 	gorm.Model
-	ID        int64   `gorm:"primaryKey"`
+	ID        int64  	`gorm:"primaryKey"`
 	Name      string
-	Email     string `gorm:"unique"`
+	Email     string	`gorm:"unique"`
 	Password  string
 }
