@@ -27,6 +27,12 @@ func (c controller) Create(ctx *gin.Context) {
 	// Might need this later when authenticating and authorizing
 	person := model.Person{Name: body.Name, Email: body.Email, Password: body.Password}
 
+	validRecord, errors := ValidatePerson(person)
+	if !validRecord {
+		ctx.JSON(500, gin.H{"error": errors})
+		return
+	}
+
 	c.service.Create(ctx, person)
 }
 
