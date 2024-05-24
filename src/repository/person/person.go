@@ -14,9 +14,9 @@ func NewPerson() PersonRepoInt {
 	return repository{}
 }
 
-// A RepositoryInt interface method
-//
-// Inserts a record in the user table
+// cURL validation command: 
+// curl -X POST --json '{"Name": "Albert Einstein", "Email": "einstein@mail.com", "Password": "einstein124"}' localhost:3000/person
+// 
 func (repo repository) Create(ctx *gin.Context, person model.Person) {
 	result := config.DB.Create(&person)
 	if result.Error != nil {
@@ -27,6 +27,9 @@ func (repo repository) Create(ctx *gin.Context, person model.Person) {
 	ctx.JSON(200, gin.H{"data": person})
 }
 
+// cURL validation command: 
+// curl -X GET -localhost:3000/person
+// 
 func (repo repository) GetAll(ctx *gin.Context) {
 	var people []model.Person
 
@@ -39,6 +42,9 @@ func (repo repository) GetAll(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"data": people})
 }
 
+// cURL validation command: 
+// curl -X GET -localhost:3000/person/1
+// 
 func (repo repository) GetByID(ctx *gin.Context, id int64) {
 	var person model.Person
 
@@ -51,11 +57,18 @@ func (repo repository) GetByID(ctx *gin.Context, id int64) {
 	ctx.JSON(200, gin.H{"data": person})
 }
 
+// cURL validation command: 
+// curl -X PUT --json '{"Name": "Albert Einstein", "Email": "einstein@mail.com", "Password": "einstein124"}' localhost:3000/person/1
+// 
 func (repo repository) Update(ctx *gin.Context, person model.Person) {
 	config.DB.Model(&person).Updates(model.Person{Name: person.Name, Email: person.Email, Password: person.Password})
 
 	ctx.JSON(200, gin.H{"data": person})
 }
+
+// cURL validation command: 
+// curl -X DELETE -localhost:3000/person/1
+// 
 func (repo repository) Delete(ctx *gin.Context, id int64) {
 	config.DB.Delete(&model.Person{}, id)
 

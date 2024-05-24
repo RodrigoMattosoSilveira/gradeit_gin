@@ -13,3 +13,10 @@ type Assignment struct {
 	Description	string
 	Due 		time.Time
 }
+
+type AssignmentBody struct {
+	ID        	int64
+	PersonId    int64		
+	Description	string
+	Due 		time.Time
+}
