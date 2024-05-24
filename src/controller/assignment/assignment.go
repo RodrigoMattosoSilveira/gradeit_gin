@@ -24,8 +24,13 @@ func (c controller) Create(ctx *gin.Context) {
 	var body model.Assignment
 	ctx.BindJSON(&body)
 
-	// Might need this later when authenticating and authorizing
 	assignment := model.Assignment{PersonId: body.PersonId, Description: body.Description, Due: body.Due}
+
+	valid, errors := ValidateAssignment(ctx, assignment)
+	if !valid {
+		ctx.JSON(500, gin.H{"error": errors})
+		return
+	}
 
 	c.service.Create(ctx, assignment)
 }
