@@ -21,16 +21,17 @@ func NewAssignment(s service.AssignmentSvcInt) controller {
 }
 
 func (c controller) Create(ctx *gin.Context) {
-	var body model.Assignment
+	var body model.AssignmentBody
 	ctx.BindJSON(&body)
 
-	assignment := model.Assignment{PersonId: body.PersonId, Description: body.Description, Due: body.Due}
-
-	valid, errors := ValidateAssignment(ctx, assignment)
+	valid, errors := ValidateAssignment(ctx, body)
 	if !valid {
 		ctx.JSON(500, gin.H{"error": errors})
 		return
 	}
+
+	assignment := model.Assignment{PersonId: body.PersonId, Description: body.Description, Due: body.Due}
+	assignment.Due = assignment.Due.UTC()
 
 	c.service.Create(ctx, assignment)
 }
@@ -49,17 +50,23 @@ func (c controller) GetByID(ctx *gin.Context) {
 }
 
 func (c controller) Update(ctx *gin.Context) {
-	var body model.Assignment
+	var body model.AssignmentBody
 	ctx.BindJSON(&body)
+	
 	id := ctx.Param("id")
 	idInt, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err})
 	}
 
-	// Might need this later when authenticating and authorizing
-	Assignment := model.Assignment{ID: idInt,PersonId: body.PersonId, Description: body.Description, Due: body.Due}
-	c.service.Update(ctx, Assignment)
+	valid, errors := ValidateAssignment(ctx, body)
+	if !valid {
+		ctx.JSON(500, gin.H{"error": errors})
+		return
+	}
+
+	assignment := model.Assignment{ID: idInt,PersonId: body.PersonId, Description: body.Description, Due: body.Due}
+	c.service.Update(ctx, assignment)
 }
 
 func (c controller) Delete(ctx *gin.Context) {
