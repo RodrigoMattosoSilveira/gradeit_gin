@@ -22,17 +22,23 @@ func NewAssignment(s service.AssignmentSvcInt) controller {
 
 func (c controller) Create(ctx *gin.Context) {
 	var body model.AssignmentBody
-	ctx.BindJSON(&body)
+	// var body struct {
+	// 	PersonId    int64			`json:"person_id"`
+	// 	Description	string
+	// 	Due 		time.Time
+	// }
+	if ctx.BindJSON(&body) != nil {
+		ctx.JSON(400, gin.H{"error": "bad request"})
+		return
+	}
 
-	valid, errors := ValidateAssignment(ctx, body)
+	valid, errors := ValidateCreateAssignment(ctx, body)
 	if !valid {
 		ctx.JSON(500, gin.H{"error": errors})
 		return
 	}
 
 	assignment := model.Assignment{PersonId: body.PersonId, Description: body.Description, Due: body.Due}
-	assignment.Due = assignment.Due.UTC()
-
 	c.service.Create(ctx, assignment)
 }
 
@@ -59,7 +65,7 @@ func (c controller) Update(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"error": err})
 	}
 
-	valid, errors := ValidateAssignment(ctx, body)
+	valid, errors := ValidateUpdateAssignment(ctx, body)
 	if !valid {
 		ctx.JSON(500, gin.H{"error": errors})
 		return

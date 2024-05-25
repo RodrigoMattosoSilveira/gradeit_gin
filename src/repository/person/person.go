@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"madronetek.com/gradeit/config"
@@ -33,12 +35,17 @@ func (repo repository) Create(ctx *gin.Context, person model.Person) {
 func (repo repository) GetAll(ctx *gin.Context) {
 	var people []model.Person
 
-	result := config.DB.Find(&people)
-	if result.Error != nil {
-		ctx.JSON(500, gin.H{"error": result.Error})
-	return
+	// result := config.DB.Find(&people)
+	// if result.Error != nil {
+	// 	ctx.JSON(500, gin.H{"error": result.Error})
+	// 	return
+	// }
+	err := config.DB.Model(&model.Person{}).Preload("Assignments").Find(&people).Error
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"error": "error getting people"})
+		return
 	}
-
 	ctx.JSON(200, gin.H{"data": people})
 }
 
@@ -47,12 +54,19 @@ func (repo repository) GetAll(ctx *gin.Context) {
 // 
 func (repo repository) GetByID(ctx *gin.Context, id int64) {
 	var person model.Person
+	var assignments []model.Assignment
 
 	result := config.DB.First(&person, id)
 	if result.Error != nil {
 		ctx.JSON(500, gin.H{"error": result.Error})
 		return
 	}
+	result = config.DB.Where("person_id = ?", id).Find(&assignments)
+	if result.Error != nil {
+		ctx.JSON(500, gin.H{"error": result.Error})
+		return
+	}
+	person.Assignments = append(person.Assignments, assignments...)
 
 	ctx.JSON(200, gin.H{"data": person})
 }
