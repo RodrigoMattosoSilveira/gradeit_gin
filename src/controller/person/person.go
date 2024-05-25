@@ -3,6 +3,7 @@ package controller
 import (
 	"strconv"
 
+	"golang.org/x/crypto/bcrypt"
 	"madronetek.com/gradeit/model"
 	service "madronetek.com/gradeit/service/person"
 
@@ -21,11 +22,15 @@ func NewPerson(s service.PersonSvcInt) controller {
 }
 
 func (c controller) Create(ctx *gin.Context) {
-	var body model.Person
+	var body model.PersonBody
 	ctx.BindJSON(&body)
 
-	// Might need this later when authenticating and authorizing
-	person := model.Person{Name: body.Name, Email: body.Email, Password: body.Password}
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	if err != nil {
+	 ctx.JSON(500, gin.H{"error": err})
+	 return
+	}
+	person := model.Person{Name: body.Name, Email: body.Email, Password: string(hash)}
 
 	validPerson, errors := ValidatePerson(person)
 	if !validPerson {
