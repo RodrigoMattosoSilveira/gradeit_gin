@@ -15,8 +15,7 @@ type Assignment struct {
 }
 
 type AssignmentBody struct {
-	ID        	int64
-	PersonId    int64		
+	PersonId    int64
 	Description	string
 	Due 		time.Time
 }
